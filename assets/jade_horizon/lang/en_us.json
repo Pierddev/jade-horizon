@@ -25,6 +25,7 @@
   "jade_horizon.harvestable": "✔ Harvestable",
   "jade_horizon.wrong_tool": "✘ Needs the right tool",
 
+  "jade_horizon.health": "\u2764 %s / %s",
   "jade_horizon.owner": "Owner: %s",
   "jade_horizon.speed": "Speed: %s blocks/s",
   "jade_horizon.jump": "Jump: %s blocks",
