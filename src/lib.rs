@@ -57,10 +57,9 @@ impl Hooks for Mod {
         toggle.label = "key.jade_horizon.toggle".into();
         r.register_key_mapping(toggle);
 
+        // A refused setting only means its row is missing; its read falls back to the default.
         for spec in settings::specs() {
-            if let Err(e) = r.register_setting(spec) {
-                log::warn!("jade_horizon: setting refused: {e:?}");
-            }
+            let _ = r.register_setting(spec);
         }
 
         let mut payloads = r.payload_handlers();
