@@ -40,7 +40,29 @@ Les points de vie, les données des animaux, des villageois et des chevaux, les 
 
 Jade compte aussi des centaines d'intégrations avec d'autres mods Java (Create, Mekanism…) : elles n'ont pas d'équivalent dans Horizon.
 
-## Compiler et installer
+## Installation
+
+1. Téléchargez `jade_horizon.hmod` depuis la [dernière release](https://github.com/Pierddev/jade-horizon/releases/latest). N'installez que le fichier de cette page.
+2. Ouvrez le dossier de données de Horizon : `Win + R`, tapez `%APPDATA%\horizon` puis Entrée.
+3. Copiez `jade_horizon.hmod` dans le dossier `horizon-mods` (créez-le s'il n'existe pas).
+4. Ouvrez `horizon-mods.txt` dans le même dossier (créez-le si besoin) et ajoutez cette ligne :
+
+   ```
+   mod.jade_horizon:true
+   ```
+
+   Avec `false`, le mod est désactivé sans être supprimé.
+5. Relancez Horizon.
+
+Pour mettre à jour, remplacez le fichier `.hmod` par le nouveau et relancez. Pour désinstaller, supprimez le fichier et sa ligne dans `horizon-mods.txt`.
+
+Le mod est compilé pour une version précise de Horizon (Nightly `0a875da`, API de mod 0.2). Sur une autre version, il peut être refusé au chargement : voyez les notes de la release.
+
+**Sécurité :** un `.hmod` a les mêmes accès à votre ordinateur que le jeu. N'installez que des mods dont vous faites confiance aux auteurs.
+
+En multijoueur, installez-le côté client pour l'infobulle. Le mettre aussi sur le serveur ajoute les données de santé, d'animaux, de villageois, de chevaux et de contenu (voir plus haut).
+
+## Compiler depuis les sources
 
 ```powershell
 .\build.ps1

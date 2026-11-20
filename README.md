@@ -40,7 +40,29 @@ Health, animal, villager and horse data, effects, contents and furnace/brewing p
 
 Jade also has hundreds of integrations with other Java mods (Create, Mekanism…): they have no Horizon counterpart.
 
-## Build and install
+## Installation
+
+1. Download `jade_horizon.hmod` from the [latest release](https://github.com/Pierddev/jade-horizon/releases/latest). Only install the file from this release page.
+2. Open Horizon's data folder: press `Win + R`, type `%APPDATA%\horizon` and press Enter.
+3. Copy `jade_horizon.hmod` into the `horizon-mods` folder (create it if it does not exist).
+4. Open `horizon-mods.txt` in the same data folder (create it if needed) and add this line:
+
+   ```
+   mod.jade_horizon:true
+   ```
+
+   Setting it to `false` disables the mod without deleting it.
+5. Restart Horizon.
+
+To update, replace the `.hmod` file with the new one and restart. To uninstall, delete the file and its line in `horizon-mods.txt`.
+
+The mod is built for a specific Horizon build (Nightly `0a875da`, mod API 0.2). On another build it may be refused at load time: check the release notes for the supported version.
+
+**Security:** a `.hmod` runs with the same access to your computer as the game. Only install mods from authors you trust.
+
+For multiplayer, install it on the client for the tooltip. Installing it on the server too adds health, animal, villager, horse and container data (see above).
+
+## Build from source
 
 ```powershell
 .\build.ps1
