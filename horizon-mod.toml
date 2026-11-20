@@ -3,7 +3,6 @@ name = "Jade for Horizon"
 version = "0.1.0"
 description = "Shows what you are looking at: the block or entity under the crosshair, its mod and, for mobs, their health. An unofficial Horizon port of Snownee's Jade."
 authors = ["Pierddev"]
-license = "CC-BY-NC-SA-4.0"
 api = "0.2"
 side = "both"
 capabilities = ["registries"]
