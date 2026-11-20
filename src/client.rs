@@ -5,10 +5,11 @@ use crate::text::*;
 use crate::{lock, MINING, TICKS};
 use mod_api::{
     BlockState, ClientHost, CrosshairTarget, DrawContext, EntityRef, GuiDraw, Hand,
-    HostBlockStates, Identifier, ItemKey, PoseOp,
+    HostBlockStates, Identifier, ItemKey, Text,
 };
 #[allow(unused_imports)]
 use mod_api::prelude::*;
+use mod_api::client::hud_layout::PoseOp;
 use std::sync::atomic::Ordering;
 
 /// The mining bar shows while the last mining prediction is at most this many ticks old.
@@ -361,59 +362,109 @@ impl Tooltip {
             Position::Left => MARGIN,
             Position::Right => (screen_w - w * scale - MARGIN).round(),
         };
-        // Position and size through the GUI pose stack: every draw call below is in box pixels.
-        let _ = draw.gui_paint(&[GuiDraw::Push(vec![
-            PoseOp::Translate(x, MARGIN),
-            PoseOp::Scale(scale, scale),
-        ])]);
+        let origin = [x, MARGIN];
 
-        // Frame: fill with cut corners, then the border.
-        draw.fill([1.0, 0.0, w - 2.0, h], theme.background);
-        draw.fill([0.0, 1.0, 1.0, h - 2.0], theme.background);
-        draw.fill([w - 1.0, 1.0, 1.0, h - 2.0], theme.background);
-        draw.fill_gradient([1.0, 1.0, 1.0, h - 2.0], theme.border_top, theme.border_bottom);
-        draw.fill_gradient([w - 2.0, 1.0, 1.0, h - 2.0], theme.border_top, theme.border_bottom);
-        draw.fill([1.0, 1.0, w - 2.0, 1.0], theme.border_top);
-        draw.fill([1.0, h - 2.0, w - 2.0, 1.0], theme.border_bottom);
+        // The size setting goes through the GUI pose, which applies only inside one `gui_paint`
+        // buffer: the frame, the lines and the bar go in one buffer, in box pixels, after a
+        // `Push` that moves and scales them. Item icons can't go in a buffer (its `Item` op only
+        // draws hotbar slots), so they are drawn on their own at scaled positions and sizes,
+        // then a second buffer draws the stack counts over them.
+        let mut paint = Painter::new(origin, scale);
+        paint.fill([1.0, 0.0, w - 2.0, h], theme.background);
+        paint.fill([0.0, 1.0, 1.0, h - 2.0], theme.background);
+        paint.fill([w - 1.0, 1.0, 1.0, h - 2.0], theme.background);
+        paint.gradient([1.0, 1.0, 1.0, h - 2.0], theme.border_top, theme.border_bottom);
+        paint.gradient([w - 2.0, 1.0, 1.0, h - 2.0], theme.border_top, theme.border_bottom);
+        paint.fill([1.0, 1.0, w - 2.0, 1.0], theme.border_top);
+        paint.fill([1.0, h - 2.0, w - 2.0, 1.0], theme.border_bottom);
 
-        if let Some(icon) = self.icon {
-            let icon_y = PAD + ((content_h - ICON) / 2.0).round();
-            draw.item(icon, [PAD, icon_y], ICON);
-        }
         let text_x = PAD + icon_room;
         let text_y = PAD + ((content_h - text_h) / 2.0).round();
         for (i, (text, role)) in self.lines.iter().enumerate() {
             let at = [text_x, text_y + i as f32 * LINE];
-            draw.text(text, at, theme.colour(*role), theme.shadow);
+            paint.text(text, at, theme.colour(*role), theme.shadow);
         }
 
-        let mut y = PAD + content_h + 3.0;
-        if rows > 0 {
-            let cell = |i: usize| {
-                let cx = PAD + (i % ITEMS_PER_ROW) as f32 * CELL + 1.0;
-                let cy = y + (i / ITEMS_PER_ROW) as f32 * CELL + 1.0;
-                [cx, cy]
-            };
-            for (i, (key, _)) in self.items.iter().enumerate() {
-                draw.item(*key, cell(i), ICON);
-            }
-            // Counts after every icon, so they draw over them, bottom-right as vanilla's.
+        let items_y = PAD + content_h + 3.0;
+        if let Some(progress) = self.bar {
+            let bar_y = items_y + items_room;
+            let bar_w = w - 2.0 * PAD;
+            paint.fill([PAD, bar_y, bar_w, BAR], theme.bar_back);
+            paint.fill([PAD, bar_y, (bar_w * progress).round(), BAR], theme.bar_fill);
+        }
+        paint.finish(draw);
+
+        // Icons: box pixels → screen pixels by hand.
+        let on_screen = |[bx, by]: [f32; 2]| [origin[0] + bx * scale, origin[1] + by * scale];
+        if let Some(icon) = self.icon {
+            let icon_y = PAD + ((content_h - ICON) / 2.0).round();
+            draw.item(icon, on_screen([PAD, icon_y]), ICON * scale);
+        }
+        let cell = |i: usize| {
+            let cx = PAD + (i % ITEMS_PER_ROW) as f32 * CELL + 1.0;
+            let cy = items_y + (i / ITEMS_PER_ROW) as f32 * CELL + 1.0;
+            [cx, cy]
+        };
+        for (i, (key, _)) in self.items.iter().enumerate() {
+            draw.item(*key, on_screen(cell(i)), ICON * scale);
+        }
+        // Counts over the icons, bottom-right as vanilla's.
+        if self.items.iter().any(|(_, count)| *count > 1) {
+            let mut counts = Painter::new(origin, scale);
             for (i, (_, count)) in self.items.iter().enumerate() {
                 if *count > 1 {
                     let [cx, cy] = cell(i);
                     let label = count_text(*count);
                     let lw = draw.text_width(&label);
-                    draw.text(&label, [cx + ICON + 1.0 - lw, cy + 9.0], 0xFFFF_FFFF, true);
+                    counts.text(&label, [cx + ICON + 1.0 - lw, cy + 9.0], 0xFFFF_FFFF, true);
                 }
             }
-            y += items_room;
+            counts.finish(draw);
         }
-        if let Some(progress) = self.bar {
-            let bar_w = w - 2.0 * PAD;
-            draw.fill([PAD, y, bar_w, BAR], theme.bar_back);
-            draw.fill([PAD, y, (bar_w * progress).round(), BAR], theme.bar_fill);
+    }
+}
+
+/// One `gui_paint` buffer drawn in box pixels: it opens with a pose that moves the box to
+/// `origin` (screen pixels) and scales it, and closes the pose at the end.
+struct Painter {
+    ops: Vec<GuiDraw>,
+}
+
+impl Painter {
+    fn new(origin: [f32; 2], scale: f32) -> Self {
+        Self {
+            ops: vec![GuiDraw::Push(vec![
+                PoseOp::Translate(origin[0], origin[1]),
+                PoseOp::Scale(scale, scale),
+            ])],
         }
-        let _ = draw.gui_paint(&[GuiDraw::Pop]);
+    }
+    /// `[x, y, w, h]` → the op's sorted corners.
+    fn corners([x, y, w, h]: [f32; 4]) -> [i32; 4] {
+        let r = |v: f32| v.round() as i32;
+        [r(x), r(y), r(x + w), r(y + h)]
+    }
+    fn fill(&mut self, rect: [f32; 4], color: u32) {
+        let [x0, y0, x1, y1] = Self::corners(rect);
+        self.ops.push(GuiDraw::Fill { x0, y0, x1, y1, color });
+    }
+    fn gradient(&mut self, rect: [f32; 4], top: u32, bottom: u32) {
+        let [x0, y0, x1, y1] = Self::corners(rect);
+        self.ops.push(GuiDraw::FillGradient { x0, y0, x1, y1, top, bottom });
+    }
+    fn text(&mut self, text: &str, [x, y]: [f32; 2], color: u32, shadow: bool) {
+        self.ops.push(GuiDraw::Text {
+            text: Text::literal(text),
+            x: x.round() as i32,
+            y: y.round() as i32,
+            color,
+            shadow,
+        });
+    }
+    fn finish(mut self, draw: &mut dyn DrawContext) {
+        self.ops.push(GuiDraw::Pop);
+        // A refusal (text too deep) would only drop this frame's tooltip.
+        let _ = draw.gui_paint(&self.ops);
     }
 }
 
