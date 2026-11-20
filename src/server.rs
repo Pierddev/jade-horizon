@@ -255,8 +255,9 @@ mod tests {
 
     #[test]
     fn jump_height_matches_known_values() {
-        // A horse with the average strength 0.7 jumps about 2.4 blocks; the maximum 1.0, 5.3.
-        assert!((jump_height(0.7) - 2.4).abs() < 0.2);
+        // Strength 0.4 to 1.0 gives 1.1 to 5.3 blocks; the middle 0.7, about 2.9.
+        assert!((jump_height(0.4) - 1.1).abs() < 0.1);
+        assert!((jump_height(0.7) - 2.89).abs() < 0.05);
         assert!((jump_height(1.0) - 5.29).abs() < 0.05);
     }
 
