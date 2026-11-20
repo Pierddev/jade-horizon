@@ -10,17 +10,35 @@ En haut de l'écran, une infobulle sur ce que vise le réticule :
 
 - **Bloc** : icône, nom (dans la langue du jeu), mod d'origine, et selon le bloc :
   - croissance des cultures (blé, carottes, pommes de terre, betteraves, tiges de melon et de citrouille, cacao, verrues du Nether, baies sucrées, torchflower, pitcher ; et toute culture moddée qui a une propriété `age`) : « Croissance : 57 % » ou « Mûr » ;
-  - miel d'une ruche (0 à 5), niveau d'un composteur (0 à 8), charges d'une ancre de réapparition ;
+  - miel et nombre d'abeilles d'une ruche, niveau d'un composteur, charges d'une ancre de réapparition, humidité d'une terre labourée, éclosion des œufs de tortue et de renifleur, parts restantes d'un gâteau ;
+  - redstone : puissance (fil, capteur de lumière, cible, capteurs sculk, plaques de pression pondérées), délai d'un répéteur, mode d'un comparateur, état d'un levier ;
+  - note et instrument d'un bloc musical, disque d'un jukebox, créature d'un spawner ;
+  - contenu d'un conteneur (coffre, tonneau, entonnoir, four, feu de camp…), regroupé par objet, jusqu'à 18 icônes avec leur nombre ; « Butin pas encore ouvert » pour un coffre de structure jamais ouvert ;
   - cuisson d'un four, fumoir ou haut fourneau, infusion d'un alambic ;
   - si l'objet en main permet de récolter le bloc (pour les blocs qui ne lâchent rien sans le bon outil) ;
   - une barre de progression pendant le minage.
-- **Entité** : nom, points de vie (❤ 18 / 20), mod d'origine, et pour les animaux : temps avant de devenir adulte, temps avant de pouvoir se reproduire, mode amoureux, temps avant le prochain œuf (poules).
+- **Entité** : nom, points de vie (❤ 18 / 20), mod d'origine, et selon l'entité :
+  - animaux : temps avant de devenir adulte, temps avant de pouvoir se reproduire, mode amoureux, temps avant le prochain œuf (poules) ;
+  - animaux apprivoisés : propriétaire ;
+  - chevaux, ânes, mules, lamas : vitesse (blocs/s), hauteur de saut (blocs), force des lamas ;
+  - villageois : métier et niveau ; zombie-villageois en cours de guérison : temps restant ;
+  - effets actifs (nom, niveau, durée) ;
+  - cadre : l'objet qu'il contient ; TNT allumée : temps avant l'explosion.
 
 La touche **0 du pavé numérique** affiche ou masque l'infobulle (modifiable dans Options > Commandes).
 
-Les points de vie, l'âge des animaux et la progression des fours et alambics ne sont connus que du serveur. Le mod les demande quelques fois par seconde, seulement pour une cible à moins de 24 blocs. Sur un serveur sans ce mod, l'infobulle marche quand même, sans ces lignes.
+## Réglages
 
-Pas encore portés depuis Jade : contenu des coffres et fours, statistiques des chevaux, propriétaire des animaux apprivoisés, thèmes et écran de configuration.
+Dans **Options > Mods > Jade for Horizon > Config** :
+
+- **Thème** : Vanilla (infobulle de Minecraft), Sombre, Clair, Waila ;
+- **Position** : en haut au centre, à gauche ou à droite ;
+- **Taille** : de 0,5 à 2 ;
+- une case par type d'information (nom du mod, points de vie, croissance, minage, outil, détails des blocs, cuisson, contenus, reproduction, chevaux, propriétaire, villageois, effets).
+
+Les points de vie, les données des animaux, des villageois et des chevaux, les effets, les contenus et la progression des fours et alambics ne sont connus que du serveur. Le mod les demande quelques fois par seconde, seulement pour une cible à moins de 24 blocs. Sur un serveur sans ce mod, l'infobulle marche quand même, sans ces lignes. Le propriétaire d'un animal s'affiche par son nom s'il est connecté, sinon par son UUID.
+
+Jade compte aussi des centaines d'intégrations avec d'autres mods Java (Create, Mekanism…) : elles n'ont pas d'équivalent dans Horizon.
 
 ## Compiler et installer
 

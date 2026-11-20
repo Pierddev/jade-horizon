@@ -10,17 +10,35 @@ A tooltip at the top of the screen for whatever the crosshair is on:
 
 - **Block**: icon, name (in the game's language), originating mod, and depending on the block:
   - crop growth (wheat, carrots, potatoes, beetroots, melon and pumpkin stems, cocoa, nether wart, sweet berries, torchflower, pitcher plant, and any modded crop with an `age` property): "Growth: 57%" or "Mature";
-  - honey level of a beehive (0 to 5), compost level of a composter (0 to 8), charges of a respawn anchor;
+  - honey level and bee count of a hive, compost level, respawn anchor charges, farmland moisture, turtle and sniffer egg hatching, cake slices left;
+  - redstone: power (wire, daylight detector, target, sculk sensors, weighted pressure plates), repeater delay, comparator mode, lever state;
+  - a note block's note and instrument, a jukebox's disc, a spawner's mob;
+  - a container's contents (chest, barrel, hopper, furnace, campfire…), merged by item, up to 18 icons with counts; "Unopened loot" for a structure chest never opened;
   - cooking progress of a furnace, smoker or blast furnace, brewing progress of a brewing stand;
   - whether the item in your hand can harvest the block (for blocks that drop nothing without the right tool);
   - a progress bar while mining.
-- **Entity**: name, health (❤ 18 / 20), originating mod, and for animals: time until adulthood, time until they can breed again, love mode, time until the next egg (chickens).
+- **Entity**: name, health (❤ 18 / 20), originating mod, and depending on the entity:
+  - animals: time until adulthood, time until they can breed again, love mode, time until the next egg (chickens);
+  - tamed animals: owner;
+  - horses, donkeys, mules, llamas: speed (blocks/s), jump height (blocks), llama strength;
+  - villagers: profession and level; a zombie villager being cured: time left;
+  - active effects (name, level, duration);
+  - item frame: the item it holds; primed TNT: time until it explodes.
 
 The **numpad 0** key shows or hides the tooltip (rebindable in Options > Controls).
 
-Health, animal age and furnace/brewing progress are only known to the server. The mod requests them a few times per second, only for a target within 24 blocks. On a server without this mod, the tooltip still works, just without those lines.
+## Settings
 
-Not ported from Jade yet: chest and furnace contents, horse stats, owner of tamed animals, themes and the config screen.
+In **Options > Mods > Jade for Horizon > Config**:
+
+- **Theme**: Vanilla (Minecraft's tooltip), Dark, Light, Waila;
+- **Position**: top centre, left or right;
+- **Size**: 0.5 to 2;
+- one toggle per kind of information (mod name, health, growth, mining, harvest tool, block details, cooking, contents, breeding, horse stats, owner, villagers, effects).
+
+Health, animal, villager and horse data, effects, contents and furnace/brewing progress are only known to the server. The mod requests them a few times per second, only for a target within 24 blocks. On a server without this mod, the tooltip still works, just without those lines. An animal's owner shows by name when online, else by UUID.
+
+Jade also has hundreds of integrations with other Java mods (Create, Mekanism…): they have no Horizon counterpart.
 
 ## Build and install
 
