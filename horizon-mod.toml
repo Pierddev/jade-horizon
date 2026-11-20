@@ -1,0 +1,13 @@
+id = "jade_horizon"
+name = "Jade for Horizon"
+version = "0.1.0"
+description = "Shows what you are looking at: the block or entity under the crosshair, its mod and, for mobs, their health. An unofficial Horizon port of Snownee's Jade."
+authors = ["Pierre"]
+license = "CC-BY-NC-SA-4.0"
+api = "0.2"
+side = "both"
+capabilities = ["registries"]
+
+[wasm]
+sha512 = "f84f012c70bd57bf4d7fbe882ff101853a2a0ebf54a4fc5a3be4800d9a29897e59a2f52f4a57d5a1f0ffedb03f60f8acf2bc0ead6aba5808c790cf4663eff332"
+toolchain = "1.99.1 58cf8f9c35b355199727627d07ae34a4e2846d67"

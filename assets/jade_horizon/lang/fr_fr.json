@@ -1,0 +1,16 @@
+{
+  "key.jade_horizon.toggle": "Afficher/masquer l'infobulle",
+  "jade_horizon.growth": "Croissance : %s",
+  "jade_horizon.mature": "Mûr",
+  "jade_horizon.honey": "Miel : %s",
+  "jade_horizon.compost": "Compost : %s",
+  "jade_horizon.charges": "Charges : %s",
+  "jade_horizon.cooking": "Cuisson : %s",
+  "jade_horizon.brewing": "Infusion : %s",
+  "jade_horizon.harvestable": "✔ Récoltable",
+  "jade_horizon.wrong_tool": "✘ Outil inadapté",
+  "jade_horizon.grows_up": "Adulte dans %s",
+  "jade_horizon.breed_cooldown": "Reproduction dans %s",
+  "jade_horizon.in_love": "❤ Amoureux",
+  "jade_horizon.next_egg": "Prochain œuf dans %s"
+}

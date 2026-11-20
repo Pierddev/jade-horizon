@@ -1,0 +1,17 @@
+﻿Jade for Horizon
+================
+
+Unofficial port of Jade to Horizon (WebAssembly mod API 0.2).
+
+Original work: Jade by Snownee and contributors
+  https://github.com/Snownee/Jade
+  Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+  https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+This project is an adaptation of the idea and behaviour of Jade, rewritten in Rust for Horizon.
+It was modified from the original: it is a new codebase for a different game API, and implements
+only a subset of Jade's features. No Minecraft or Mojang assets or data are included; block and
+item icons and names are read at runtime from the player's own game.
+
+This adaptation is shared under the same licence, CC BY-NC-SA 4.0. See the LICENSE file.
+Not affiliated with or endorsed by Snownee or the Horizon project.
