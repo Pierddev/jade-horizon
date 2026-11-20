@@ -4,6 +4,12 @@
 
 Portage non officiel de [Jade](https://www.curseforge.com/minecraft/mc-mods/jade) (Snownee) pour [Horizon](https://playhorizon.dev) (jeu 26.3, API de mod 0.2). Le Jade d'origine est un mod Java NeoForge, qui ne peut pas tourner dans Horizon : ce mod réécrit ses fonctions principales en Rust (WebAssembly), avec le SDK officiel.
 
+## Captures d'écran
+
+| Bloc | Croissance d'une culture | Four |
+| --- | --- | --- |
+| ![Un bloc d'herbe avec son nom et son mod](docs/screenshots/block.png) | ![Du blé avec son pourcentage de croissance](docs/screenshots/crop-growth.png) | ![Un four avec sa progression de cuisson](docs/screenshots/furnace.png) |
+
 ## Ce qu'il affiche
 
 En haut de l'écran, une infobulle sur ce que vise le réticule :

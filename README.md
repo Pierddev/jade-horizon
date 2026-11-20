@@ -4,6 +4,12 @@
 
 Unofficial port of [Jade](https://www.curseforge.com/minecraft/mc-mods/jade) (by Snownee) to [Horizon](https://playhorizon.dev) (game 26.3, mod API 0.2). The original Jade is a Java NeoForge mod and cannot run in Horizon: this mod rewrites its main features in Rust (WebAssembly), using the official SDK.
 
+## Screenshots
+
+| Block | Crop growth | Furnace |
+| --- | --- | --- |
+| ![A grass block with its name and mod](docs/screenshots/block.png) | ![Wheat with its growth percentage](docs/screenshots/crop-growth.png) | ![A furnace with its cooking progress](docs/screenshots/furnace.png) |
+
 ## What it shows
 
 A tooltip at the top of the screen for whatever the crosshair is on:
