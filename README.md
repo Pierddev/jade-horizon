@@ -19,7 +19,7 @@ A tooltip at the top of the screen for whatever the crosshair is on:
   - honey level and bee count of a hive, compost level, respawn anchor charges, farmland moisture, turtle and sniffer egg hatching, cake slices left;
   - redstone: power (wire, daylight detector, target, sculk sensors, weighted pressure plates), repeater delay, comparator mode, lever state;
   - a note block's note and instrument, a jukebox's disc, a spawner's mob;
-  - a container's contents (chest, barrel, hopper, furnace, campfire…), merged by item, up to 18 icons with counts; "Unopened loot" for a structure chest never opened;
+  - a container's contents (chest, barrel, hopper, furnace, campfire…), merged by item, up to 18 icons with counts; "Unopened loot" for a structure chest never opened; nothing for a locked container (vanilla `lock`), even to the key holder;
   - cooking progress of a furnace, smoker or blast furnace, brewing progress of a brewing stand;
   - whether the item in your hand can harvest the block (for blocks that drop nothing without the right tool);
   - a progress bar while mining.

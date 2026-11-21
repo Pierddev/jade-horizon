@@ -1,7 +1,7 @@
 //! Server side: answers the client's questions from data only the server has. Every answer is
 //! limited to targets near the asking player, so the payloads can't spy on far-away places.
 use crate::payloads::*;
-use mod_api::{Compound, Host, IPayloadContext, PlayerRef, Tag};
+use mod_api::{Compound, Host, HostBlockStates, IPayloadContext, PlayerRef, Tag};
 #[allow(unused_imports)]
 use mod_api::prelude::*;
 use std::collections::BTreeMap;
@@ -112,6 +112,44 @@ fn uuid_text(uuid: u128) -> String {
     format!("{}-{}-{}-{}-{}", &h[0..8], &h[8..12], &h[12..16], &h[16..20], &h[20..])
 }
 
+/// The other half of a double chest (`ChestBlock.getConnectedDirection`): a `left` half's
+/// partner is clockwise of its `facing`, a `right` half's counter-clockwise. None for a single
+/// chest or a block without these properties.
+fn connected_half(pos: [i32; 3], facing: &str, kind: &str) -> Option<[i32; 3]> {
+    // Clockwise seen from above: north, east, south, west.
+    const AROUND: [(&str, [i32; 2]); 4] = [
+        ("north", [0, -1]),
+        ("east", [1, 0]),
+        ("south", [0, 1]),
+        ("west", [-1, 0]),
+    ];
+    let at = AROUND.iter().position(|(name, _)| *name == facing)?;
+    let turn = match kind {
+        "left" => 1,
+        "right" => 3,
+        _ => return None,
+    };
+    let [dx, dz] = AROUND[(at + turn) % 4].1;
+    Some([pos[0] + dx, pos[1], pos[2] + dz])
+}
+
+/// A container's contents merged by item, most first; nothing for a locked container.
+fn contents(data: &Compound, locked: bool) -> Vec<ItemCount> {
+    if locked {
+        return Vec::new();
+    }
+    let mut merged: BTreeMap<String, i32> = BTreeMap::new();
+    for stack in compounds(data, "Items").filter_map(item) {
+        *merged.entry(stack.id).or_default() += stack.count;
+    }
+    let mut items: Vec<ItemCount> = merged
+        .into_iter()
+        .map(|(id, count)| ItemCount { id, count })
+        .collect();
+    items.sort_by(|a, b| b.count.cmp(&a.count).then_with(|| a.id.cmp(&b.id)));
+    items
+}
+
 // --- Answers ---------------------------------------------------------------------------------
 
 /// `jade_horizon:peek_entity`.
@@ -198,9 +236,26 @@ pub fn answer_block(value: PeekBlock, cx: &mut dyn IPayloadContext) -> Result<()
     let Some(level) = player.entity().level(read) else {
         return Ok(());
     };
-    let Some(data) = host.block_entity(level, pos).and_then(|be| be.data(read)) else {
+    let Some(block_entity) = host.block_entity(level, pos) else {
         return Ok(());
     };
+    let Some(data) = block_entity.data(read) else {
+        return Ok(());
+    };
+    // A locked container (vanilla `lock`, on this block or on the other half of a double
+    // chest) refuses to open without its key: its contents stay hidden from everyone, as
+    // Jade does. Whether the player holds the key isn't checked, so the key holder doesn't
+    // see them either.
+    let other_half = level.block_state(read, pos).and_then(|state| {
+        let states = read.block_states();
+        let facing = state.property(&states, "facing").ok()??;
+        let kind = state.property(&states, "type").ok()??;
+        connected_half(pos, facing, kind)
+    });
+    let locked = block_entity.lock(read).is_some()
+        || other_half
+            .and_then(|other| host.block_entity(level, other))
+            .is_some_and(|other| other.lock(read).is_some());
 
     // Furnace, smoker, blast furnace: names of 1.21.2+, then the older ones.
     let spent = int(&data, "cooking_time_spent").or_else(|| int(&data, "CookTime"));
@@ -214,25 +269,14 @@ pub fn answer_block(value: PeekBlock, cx: &mut dyn IPayloadContext) -> Result<()
         .filter(|t| *t > 0)
         .map(|t| 1.0 - t as f32 / BREW_TICKS);
 
-    // Container contents merged by item, most first.
-    let mut merged: BTreeMap<String, i32> = BTreeMap::new();
-    for stack in compounds(&data, "Items").filter_map(item) {
-        *merged.entry(stack.id).or_default() += stack.count;
-    }
-    let mut items: Vec<ItemCount> = merged
-        .into_iter()
-        .map(|(id, count)| ItemCount { id, count })
-        .collect();
-    items.sort_by(|a, b| b.count.cmp(&a.count).then_with(|| a.id.cmp(&b.id)));
-
     let reply = BlockInfo {
         x: value.x,
         y: value.y,
         z: value.z,
         cooking,
         brewing,
-        items,
-        loot: get(&data, "LootTable").is_some(),
+        items: contents(&data, locked),
+        loot: !locked && get(&data, "LootTable").is_some(),
         spawner: compound(&data, "SpawnData")
             .and_then(|s| compound(s, "entity"))
             .and_then(|e| string(e, "id")),
@@ -259,6 +303,53 @@ mod tests {
         assert!((jump_height(0.4) - 1.1).abs() < 0.1);
         assert!((jump_height(0.7) - 2.89).abs() < 0.05);
         assert!((jump_height(1.0) - 5.29).abs() < 0.05);
+    }
+
+    fn chest_with(items: &[(&str, i32)]) -> Compound {
+        let stacks = items
+            .iter()
+            .map(|(id, count)| {
+                let mut stack = Compound::new();
+                stack.insert("id".into(), Tag::String((*id).into()));
+                stack.insert("count".into(), Tag::Int(*count));
+                Tag::Compound(stack)
+            })
+            .collect();
+        let mut data = Compound::new();
+        data.insert("Items".into(), Tag::List(stacks));
+        data
+    }
+
+    #[test]
+    fn an_unlocked_chest_shows_its_contents_merged() {
+        let data = chest_with(&[("minecraft:dirt", 10), ("minecraft:diamond", 3), ("minecraft:dirt", 5)]);
+        let items = contents(&data, false);
+        assert_eq!(items.len(), 2);
+        assert_eq!((items[0].id.as_str(), items[0].count), ("minecraft:dirt", 15));
+        assert_eq!((items[1].id.as_str(), items[1].count), ("minecraft:diamond", 3));
+    }
+
+    #[test]
+    fn a_locked_chest_shows_nothing() {
+        let data = chest_with(&[("minecraft:diamond", 64)]);
+        assert!(contents(&data, true).is_empty());
+    }
+
+    #[test]
+    fn a_double_chest_finds_its_other_half() {
+        // Facing north: the left half's partner is east, the right half's west.
+        assert_eq!(connected_half([0, 64, 0], "north", "left"), Some([1, 64, 0]));
+        assert_eq!(connected_half([0, 64, 0], "north", "right"), Some([-1, 64, 0]));
+        assert_eq!(connected_half([0, 64, 0], "east", "left"), Some([0, 64, 1]));
+        assert_eq!(connected_half([0, 64, 0], "south", "left"), Some([-1, 64, 0]));
+        assert_eq!(connected_half([0, 64, 0], "west", "right"), Some([0, 64, 1]));
+        // Each half points at the other.
+        for facing in ["north", "east", "south", "west"] {
+            let other = connected_half([5, 64, 5], facing, "left").unwrap();
+            assert_eq!(connected_half(other, facing, "right"), Some([5, 64, 5]));
+        }
+        assert_eq!(connected_half([0, 64, 0], "north", "single"), None);
+        assert_eq!(connected_half([0, 64, 0], "up", "left"), None);
     }
 
     #[test]

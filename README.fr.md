@@ -19,7 +19,7 @@ En haut de l'écran, une infobulle sur ce que vise le réticule :
   - miel et nombre d'abeilles d'une ruche, niveau d'un composteur, charges d'une ancre de réapparition, humidité d'une terre labourée, éclosion des œufs de tortue et de renifleur, parts restantes d'un gâteau ;
   - redstone : puissance (fil, capteur de lumière, cible, capteurs sculk, plaques de pression pondérées), délai d'un répéteur, mode d'un comparateur, état d'un levier ;
   - note et instrument d'un bloc musical, disque d'un jukebox, créature d'un spawner ;
-  - contenu d'un conteneur (coffre, tonneau, entonnoir, four, feu de camp…), regroupé par objet, jusqu'à 18 icônes avec leur nombre ; « Butin pas encore ouvert » pour un coffre de structure jamais ouvert ;
+  - contenu d'un conteneur (coffre, tonneau, entonnoir, four, feu de camp…), regroupé par objet, jusqu'à 18 icônes avec leur nombre ; « Butin pas encore ouvert » pour un coffre de structure jamais ouvert ; rien pour un conteneur verrouillé (`lock` vanilla), même pour qui a la clé ;
   - cuisson d'un four, fumoir ou haut fourneau, infusion d'un alambic ;
   - si l'objet en main permet de récolter le bloc (pour les blocs qui ne lâchent rien sans le bon outil) ;
   - une barre de progression pendant le minage.
